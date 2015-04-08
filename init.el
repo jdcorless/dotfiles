@@ -26,6 +26,12 @@
       (list 'dirtree
 	    'magit
             'smex)
+            'ido
+            'ido-vertical-mode
+            'window-number
+            'ess
+            'ein
+            'markdown-mode
       )
 
 (dolist (package jdc-required-packages)
