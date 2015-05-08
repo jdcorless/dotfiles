@@ -25,13 +25,13 @@
 (setq jdc-required-packages
       (list 'dirtree
 	    'magit
-            'smex)
+            'smex
             'ido
             'ido-vertical-mode
             'window-number
             'ess
             'ein
-            'markdown-mode
+            'markdown-mode)
       )
 
 (dolist (package jdc-required-packages)
