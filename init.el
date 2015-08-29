@@ -109,7 +109,7 @@
 (column-number-mode 1)
 (ido-mode 1)
 (show-paren-mode 1)
-(global-visual-line-mode 1)
+;; (global-visual-line-mode 1)
 ;; (mouse-avoidance-mode 'banish)
 
 ;; Some customizations from Bastien Guerry's emacs simplified
