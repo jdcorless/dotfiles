@@ -158,5 +158,5 @@
 (global-set-key (kbd "C-c e") 'eval-and-replace)
 
 ;; Set up org-mode
-(org-enforce-todo-checkbox-dependencies t)
-(org-enforce-todo-dependencies t)
+(setq org-enforce-todo-checkbox-dependencies t)
+(setq org-enforce-todo-dependencies t)
