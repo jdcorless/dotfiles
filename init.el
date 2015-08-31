@@ -160,3 +160,11 @@
 ;; Set up org-mode
 (setq org-enforce-todo-checkbox-dependencies t)
 (setq org-enforce-todo-dependencies t)
+
+;; Scrolling
+;; Keep cursor at same position when scrolling
+(setq scroll-preserve-screen-position 1)
+;; Scroll window up/down by one line
+(global-set-key (kbd "M-n") (kbd "C-u 1 C-v"))
+(global-set-key (kbd "M-p") (kbd "C-u 1 M-v"))
+
