@@ -158,6 +158,7 @@
 (global-set-key (kbd "C-c e") 'eval-and-replace)
 
 ;; Set up org-mode
+(global-set-key "\C-ca" 'org-agenda)
 (setq org-enforce-todo-checkbox-dependencies t)
 (setq org-enforce-todo-dependencies t)
 
@@ -168,3 +169,5 @@
 (global-set-key (kbd "M-n") (kbd "C-u 1 C-v"))
 (global-set-key (kbd "M-p") (kbd "C-u 1 M-v"))
 
+;; Set up magit
+(global-set-key (kbd "C-x g") 'magit-status)
