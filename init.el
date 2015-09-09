@@ -31,7 +31,8 @@
             'window-number
             'ess
             'ein
-            'markdown-mode)
+            'markdown-mode
+	    'htmlize)
       )
 
 (dolist (package jdc-required-packages)
