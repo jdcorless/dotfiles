@@ -31,7 +31,9 @@
             'window-number
             'ess
             'ein
-            'markdown-mode)
+            'markdown-mode
+	    'eclipse-theme
+	    )
       )
 
 (dolist (package jdc-required-packages)
@@ -98,7 +100,7 @@
 ;; (disable-theme 'adwaita)
 ;; (load-theme 'deeper-blue t)
 ;; (disable-theme 'deeper-blue)
-
+(require 'eclipse-theme)
 
 ;; Font selection
 ;; (set-face-attribute 'default nil :family "Consolas" :height 100)
