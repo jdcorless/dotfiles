@@ -34,6 +34,7 @@
             'markdown-mode
 	    'eclipse-theme
 	    'htmlize
+	    'auto-compile
 	    )
       )
 
@@ -45,6 +46,16 @@
 (setq backup-directory-alist
       (list (cons "." (expand-file-name "backup" user-emacs-directory))))
 
+
+;; Byte compile
+;;; init.el --- user init file      -*- no-byte-compile: t -*-
+(setq load-prefer-newer t)
+(add-to-list 'load-path "/path/to/dash")
+(add-to-list 'load-path "/path/to/packed")
+(add-to-list 'load-path "/path/to/auto-compile")
+(require 'auto-compile)
+(auto-compile-on-load-mode 1)
+(auto-compile-on-save-mode 1)
 
 ;; Dirtree mode
 (require 'dirtree)
