@@ -172,9 +172,39 @@
 (global-set-key (kbd "C-c e") 'eval-and-replace)
 
 ;; Set up org-mode
+(add-to-list 'load-path "~/git/org-mode/lisp")
+(add-to-list 'load-path "~/git/org-mode/contrib/lisp" t)
 (global-set-key "\C-ca" 'org-agenda)
 (setq org-enforce-todo-checkbox-dependencies t)
 (setq org-enforce-todo-dependencies t)
+;; Per post at http://kitchingroup.cheme.cmu.edu/blog/2015/03/12/Making-org-mode-Python-sessions-look-better/
+;; This makes Python output in session mode clean up all the extra
+;; >>> and ...
+(defun org-babel-python-strip-session-chars ()
+  "Remove >>> and ... from a Python session output."
+  (when (and (string=
+              "python"
+              (org-element-property :language (org-element-at-point)))
+             (string-match
+              ":session"
+              (org-element-property :parameters (org-element-at-point))))
+
+    (save-excursion
+      (when (org-babel-where-is-src-block-result)
+        (goto-char (org-babel-where-is-src-block-result))
+        (end-of-line 1)
+        ;(while (looking-at "[\n\r\t\f ]") (forward-char 1))
+        (while (re-search-forward
+                "\\(>>> \\|\\.\\.\\. \\|: $\\|: >>>$\\)"
+                (org-element-property :end (org-element-at-point))
+                t)
+          (replace-match "")
+          ;; this enables us to get rid of blank lines and blank : >>>
+          (beginning-of-line)
+          (when (looking-at "^$")
+            (kill-line)))))))
+
+(add-hook 'org-babel-after-execute-hook 'org-babel-python-strip-session-chars)
 
 ;; Scrolling
 ;; Keep cursor at same position when scrolling
