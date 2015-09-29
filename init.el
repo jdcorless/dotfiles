@@ -35,6 +35,7 @@
 	    'eclipse-theme
 	    'htmlize
 	    'auto-compile
+	    'elpy
 	    )
       )
 
@@ -88,6 +89,9 @@
 ;; (add-hook 'scheme-mode-hook 'scheme-mode-quack-hook)
 
 
+;; Elpy
+(elpy-enable)
+(elpy-use-ipython)
 
 ;; Set up ipython as default interpreter
 ;;(when (executable-find "ipython")
