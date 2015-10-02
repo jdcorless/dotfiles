@@ -36,6 +36,7 @@
 	    'htmlize
 	    'auto-compile
 	    'elpy
+	    'vimgolf
 	    )
       )
 
