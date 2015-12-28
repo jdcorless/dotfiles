@@ -215,3 +215,6 @@
 
 ;; Set up magit
 (global-set-key (kbd "C-x g") 'magit-status)
+
+;; Global hl-line-mode
+(global-hl-line-mode)
