@@ -35,6 +35,8 @@
 	    'eclipse-theme
 	    'htmlize
 	    'auto-compile
+	    'elpy
+	    'vimgolf
 	    )
       )
 
@@ -88,6 +90,9 @@
 ;; (add-hook 'scheme-mode-hook 'scheme-mode-quack-hook)
 
 
+;; Elpy
+(elpy-enable)
+(elpy-use-ipython)
 
 ;; Set up ipython as default interpreter
 ;;(when (executable-find "ipython")
@@ -174,7 +179,21 @@
 ;; Set up org-mode
 (add-to-list 'load-path "~/git/org-mode/lisp")
 (add-to-list 'load-path "~/git/org-mode/contrib/lisp" t)
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-ca" 'org-agenda)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '(
+   (sh . t)
+   (python . t)
+   (R . t)
+   (ditaa . t)
+   (dot . t)
+   (sqlite . t)
+   ))
+
 (setq org-enforce-todo-checkbox-dependencies t)
 (setq org-enforce-todo-dependencies t)
 ;; Per post at http://kitchingroup.cheme.cmu.edu/blog/2015/03/12/Making-org-mode-Python-sessions-look-better/
