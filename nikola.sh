@@ -17,8 +17,11 @@ rm /tmp/tidy5.deb
 pip install --upgrade Cython
 pip install --upgrade "Nikola[extras,tests]"
 
-# Initiating a demo blog
+# Initiating a demo (populates with example data) blog
 # nikola init --demo testblog
 # cd testblog/
-# nikola build
-# nikola serve
+# nikola install_theme lanyon
+# edit conf.py to set THEME="lanyon"
+# nikola plugin -i orgmode
+# make changes to POSTS and COMPILERS in conf.py per instructions
+# nikola build && nikola serve
