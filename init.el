@@ -37,6 +37,7 @@
 	    'auto-compile
 	    'elpy
 	    'vimgolf
+	    'ob-ipython
 	    )
       )
 
@@ -237,3 +238,6 @@
 
 ;; Global hl-line-mode
 (global-hl-line-mode)
+
+;; Set up ipython as org-mode language
+(require 'ob-ipython)
