@@ -93,7 +93,7 @@
 
 ;; Elpy
 (elpy-enable)
-(elpy-use-ipython)
+(elpy-use-ipython "~/anaconda3/bin/ipython")
 
 ;; Set up ipython as default interpreter
 ;;(when (executable-find "ipython")
