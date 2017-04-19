@@ -1,0 +1,278 @@
+#+TITLE: My Emacs Init File
+#+STARTUP: overview
+#+OPTIONS: toc:4 h:4
+
+* Basic setup
+** Add package sources
+#+BEGIN_SRC emacs-lisp
+  (unless (assoc-default "melpa" package-archives)
+    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+    (add-to-list 'package-archives '("elpa" . "http://elpa.gnu.org/packages/") t)
+  ;  (package-refresh-contents)
+  )
+#+END_SRC
+** Customizations
+#+BEGIN_SRC emacs-lisp
+  (setq jdc-emacs-config-dir user-emacs-directory)
+  (setq custom-file (expand-file-name "emacs-customizations.el" jdc-emacs-config-dir))
+  (load custom-file t)
+#+END_SRC
+** Personal info
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "John D. Corless"
+      user-mail-address "jcorless@verityinst.com")
+#+END_SRC
+** Set up use-package
+#+BEGIN_SRC emacs-lisp
+  ;; Bootstrap `use-package'
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+#+END_SRC
+
+** Misc Interface
+#+BEGIN_SRC emacs-lisp
+  (blink-cursor-mode 0)
+  (global-hl-line-mode)
+  (column-number-mode 1)
+  (show-paren-mode 1)
+  (tool-bar-mode 0)
+  (scroll-bar-mode 0)
+  (setq scroll-preserve-screen-position 1)
+  ;; Scroll window up/down by one line
+  (global-set-key (kbd "M-n") (kbd "C-u 1 C-v"))
+  (global-set-key (kbd "M-p") (kbd "C-u 1 M-v"))
+  (setq visible-bell nil)
+#+END_SRC
+* OLD Package archives, package loading :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no
+  (require 'package)
+  (add-to-list 'package-archives
+               '("melpa" . "http://melpa.org/packages/") t)
+  (when (< emacs-major-version 24)
+    ;; For important compatibility libraries like cl-lib
+    (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+  (package-initialize)
+
+
+  (setq jdc-required-packages
+        (list 'dirtree
+              'magit
+              'smex
+              'ido
+              'ido-vertical-mode
+              'window-number
+              'ess
+              'ein
+              'markdown-mode
+              'htmlize
+              'auto-compile
+              'elpy
+              'vimgolf
+              'ob-ipython
+              )
+        )
+
+  (dolist (package jdc-required-packages)
+    (when (not (package-installed-p package))
+      (package-refresh-contents)
+      (package-install package)))
+
+  (setq backup-directory-alist
+        (list (cons "." (expand-file-name "backup" user-emacs-directory))))
+
+
+  ;; Byte compile
+  ;;; init.el --- user init file      -*- no-byte-compile: t -*-
+  (setq load-prefer-newer t)
+  (add-to-list 'load-path "/path/to/dash")
+  (add-to-list 'load-path "/path/to/packed")
+  (add-to-list 'load-path "/path/to/auto-compile")
+  (require 'auto-compile)
+  (auto-compile-on-load-mode 1)
+  (auto-compile-on-save-mode 1)
+
+#+END_SRC
+
+* Dirtree mode
+#+BEGIN_SRC emacs-lisp
+  (require 'dirtree)
+#+END_SRC
+
+* Ido mode (disabled)
+#+BEGIN_SRC emacs-lisp :tangle no
+  (require 'ido)
+  (require 'ido-vertical-mode)
+  (require 'smex)
+  (global-set-key (kbd "M-x") 'smex)
+  (ido-mode 1)
+  (ido-vertical-mode 1)
+#+END_SRC
+
+* Window management
+** Window number mode (disabled)
+ #+BEGIN_SRC emacs-lisp
+     ;; C-x 3 splits window vertically, C-x 2 horizontally
+     ;; This mode allows more direct switching to windows
+     ;; than C-x o cycling by labelling each window in mode line
+     ;; C-x C-j followed by a number changes to that window
+   (use-package window-number
+     :disabled t
+     :ensure t
+     :config
+       (window-number-mode 1))
+ #+END_SRC
+** Ace-window
+ #+BEGIN_SRC emacs-lisp
+   (use-package ace-window
+     ;;:disabled t
+     :ensure t
+     :init
+     (progn
+       (global-set-key [remap other-window] 'ace-window)
+       ;; (custom-set-faces
+       ;;  '(aw-leading-char-face
+ 	;; ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
+       ))
+ #+END_SRC
+
+* Python
+** Elpy
+ #+BEGIN_SRC emacs-lisp :tangle no
+   (elpy-enable)
+   ;;(elpy-use-ipython "~/anaconda3/bin/ipython")
+ #+END_SRC
+
+** Flycheck
+ #+BEGIN_SRC emacs-lisp
+   (use-package flycheck
+     :ensure t
+     :init
+     (global-flycheck-mode t))
+ #+END_SRC
+
+** Jedi
+
+* Some useful functions
+#+BEGIN_SRC emacs-lisp
+  (defun eval-and-replace ()
+    "Replace the preceding sexp with its value."
+    (interactive)
+    (backward-kill-sexp)
+    (condition-case nil
+        (prin1 (eval (read (current-kill 0)))
+               (current-buffer))
+      (error (message "Invalid expression")
+             (insert (current-kill 0)))))
+
+  (global-set-key (kbd "C-c e") 'eval-and-replace)
+
+#+END_SRC
+
+* Org-mode
+#+BEGIN_SRC emacs-lisp
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-cc" 'org-capture)
+  (global-set-key "\C-ca" 'org-agenda)
+  (require 'ob-ipython)
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (sh . t)
+     (python . t)
+     (R . t)
+     (ditaa . t)
+     (dot . t)
+     (sqlite . t)
+     ))
+
+  (setq org-enforce-todo-checkbox-dependencies t)
+  (setq org-enforce-todo-dependencies t)
+  ;; Per post at http://kitchingroup.cheme.cmu.edu/blog/2015/03/12/Making-org-mode-Python-sessions-look-better/
+  ;; This makes Python output in session mode clean up all the extra
+  ;; >>> and ...
+  (defun org-babel-python-strip-session-chars ()
+    "Remove >>> and ... from a Python session output."
+    (when (and (string=
+                "python"
+                (org-element-property :language (org-element-at-point)))
+               (string-match
+                ":session"
+                (org-element-property :parameters (org-element-at-point))))
+
+      (save-excursion
+        (when (org-babel-where-is-src-block-result)
+          (goto-char (org-babel-where-is-src-block-result))
+          (end-of-line 1)
+          ;(while (looking-at "[\n\r\t\f ]") (forward-char 1))
+          (while (re-search-forward
+                  "\\(>>> \\|\\.\\.\\. \\|: $\\|: >>>$\\)"
+                  (org-element-property :end (org-element-at-point))
+                  t)
+            (replace-match "")
+            ;; this enables us to get rid of blank lines and blank : >>>
+            (beginning-of-line)
+            (when (looking-at "^$")
+              (kill-line)))))))
+
+;;  (add-hook 'org-babel-after-execute-hook 'org-babel-python-strip-session-chars)
+
+#+END_SRC
+
+#+RESULTS:
+
+* Magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+     :ensure t
+     :init
+     (progn
+       (bind-key "C-x g" 'magit-status)))
+#+END_SRC
+* Ivy/Counsel/Swiper
+#+BEGIN_SRC emacs-lisp
+  ;; it looks like counsel is a requirement for swiper
+  (use-package ivy
+    :ensure t)
+
+  (use-package counsel
+    :ensure t
+    )
+
+  (use-package swiper
+    :ensure try
+    :config
+    (progn
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      (setq ivy-count-format "(%d/%d) ")
+      (global-set-key "\C-s" 'swiper)
+      (global-set-key (kbd "C-c C-r") 'ivy-resume)
+      (global-set-key (kbd "<f6>") 'ivy-resume)
+      (global-set-key (kbd "M-x") 'counsel-M-x)
+      (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+      (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+      (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+      (global-set-key (kbd "<f1> l") 'counsel-load-library)
+      (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+      (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+      (global-set-key (kbd "C-c g") 'counsel-git)
+      (global-set-key (kbd "C-c j") 'counsel-git-grep)
+      (global-set-key (kbd "C-c k") 'counsel-ag)
+      (global-set-key (kbd "C-x l") 'counsel-locate)
+      (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+      ))
+
+#+END_SRC
+* Auto-complete
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-complete
+    :ensure t
+    :init
+    (progn
+      (ac-config-default)
+      (global-auto-complete-mode t)
+      ))
+#+END_SRC
