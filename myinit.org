@@ -95,7 +95,7 @@
 #+END_SRC
 
 * Dirtree mode
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (require 'dirtree)
 #+END_SRC
 
@@ -144,7 +144,7 @@
  #+END_SRC
 
 ** Flycheck
- #+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp :tangle no
    (use-package flycheck
      :ensure t
      :init
@@ -174,7 +174,7 @@
   (global-set-key "\C-cl" 'org-store-link)
   (global-set-key "\C-cc" 'org-capture)
   (global-set-key "\C-ca" 'org-agenda)
-  (require 'ob-ipython)
+  ;; (require 'ob-ipython)
 
   (org-babel-do-load-languages
    'org-babel-load-languages
