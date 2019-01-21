@@ -43,6 +43,20 @@
   (global-set-key (kbd "M-n") (kbd "C-u 1 C-v"))
   (global-set-key (kbd "M-p") (kbd "C-u 1 M-v"))
   (setq visible-bell nil)
+  ;; Custom buffer name
+  (setq frame-title-format
+    '("Emacs - " (buffer-file-name "%f"
+     (dired-directory dired-directory "%b"))))
+  
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+#+END_SRC
+** Recent Files
+#+BEGIN_SRC emacs-lisp
+(recentf-mode 1)
+(global-set-key (kbd "<f7>") 'recentf-open-files)
 #+END_SRC
 * OLD Package archives, package loading :tangle no
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -176,17 +190,26 @@
   (global-set-key "\C-ca" 'org-agenda)
   ;; (require 'ob-ipython)
 
+  ;; Set location for org-capture notes
+  (setq org-default-notes-file (concat org-directory "/notes.org"))
+
+  (setq org-confirm-babel-evaluate nil) ;; Do not ask for confirmation all the time!!
   (org-babel-do-load-languages
    'org-babel-load-languages
    '(
+     (emacs-lisp . t)
      (sh . t)
      (python . t)
      (R . t)
-     (ditaa . t)
      (dot . t)
+     (ditaa . t)
      (sqlite . t)
+     (plantuml . t)
+     (org . t)
+     (makefile . t)
      ))
 
+  (setq org-src-preserve-indentation t)
   (setq org-enforce-todo-checkbox-dependencies t)
   (setq org-enforce-todo-dependencies t)
   ;; Per post at http://kitchingroup.cheme.cmu.edu/blog/2015/03/12/Making-org-mode-Python-sessions-look-better/
@@ -195,32 +218,109 @@
   (defun org-babel-python-strip-session-chars ()
     "Remove >>> and ... from a Python session output."
     (when (and (string=
-                "python"
-                (org-element-property :language (org-element-at-point)))
-               (string-match
-                ":session"
-                (org-element-property :parameters (org-element-at-point))))
+		"python"
+		(org-element-property :language (org-element-at-point)))
+	       (string-match
+		":session"
+		(org-element-property :parameters (org-element-at-point))))
 
       (save-excursion
-        (when (org-babel-where-is-src-block-result)
-          (goto-char (org-babel-where-is-src-block-result))
-          (end-of-line 1)
-          ;(while (looking-at "[\n\r\t\f ]") (forward-char 1))
-          (while (re-search-forward
-                  "\\(>>> \\|\\.\\.\\. \\|: $\\|: >>>$\\)"
-                  (org-element-property :end (org-element-at-point))
-                  t)
-            (replace-match "")
-            ;; this enables us to get rid of blank lines and blank : >>>
-            (beginning-of-line)
-            (when (looking-at "^$")
-              (kill-line)))))))
+	(when (org-babel-where-is-src-block-result)
+	  (goto-char (org-babel-where-is-src-block-result))
+	  (end-of-line 1)
+	  ;(while (looking-at "[\n\r\t\f ]") (forward-char 1))
+	  (while (re-search-forward
+		  "\\(>>> \\|\\.\\.\\. \\|: $\\|: >>>$\\)"
+		  (org-element-property :end (org-element-at-point))
+		  t)
+	    (replace-match "")
+	    ;; this enables us to get rid of blank lines and blank : >>>
+	    (beginning-of-line)
+	    (when (looking-at "^$")
+	      (kill-line)))))))
 
-;;  (add-hook 'org-babel-after-execute-hook 'org-babel-python-strip-session-chars)
+  ;;  (add-hook 'org-babel-after-execute-hook 'org-babel-python-strip-session-chars)
+
+  ;; Some nice features from Reproducible Research MOOC
+  (setq org-alphabetical-lists t)
+  (setq org-src-fontify-natively t)  ;; you want this to activate coloring in blocks
+  (setq org-src-tab-acts-natively t) ;; you want this to have completion in blocks
+  (setq org-hide-emphasis-markers t) ;; to hide the *,=, or / markers
+  (setq org-pretty-entities t)       ;; to have \alpha, \to and others display as utf8 http://orgmode.org/manual/Special-symbols.html
+
+  ;; Better formatted data and time functions
+  (global-set-key (kbd "C-c d") 'insert-date)
+  (defun insert-date (prefix)
+    "Insert the current date (ISO format). With prefix-argument, use square brackets."
+    (interactive "P")
+    (let ((format (cond
+		   ((not prefix) "%Y-%m-%d")
+		   ((equal prefix '(4)) "[%Y-%m-%d]"))))
+      (insert (format-time-string format))))
+
+  (global-set-key (kbd "C-c t") 'insert-time-date)
+  (defun insert-time-date (prefix)
+    "Insert the current date and time (ISO format). With prefix-argument, use square brackets."
+    (interactive "P")
+    (let ((format (cond
+		   ((not prefix) "%Y-%m-%dT%H:%M:%S")
+		   ((equal prefix '(4)) "[%Y-%m-%dT%H:%M:%S]"))))
+      (insert (format-time-string format))))
+
+
+;; Templates for expansion with <? TAB
+;; (add-to-list 'org-structure-template-alist
+;; 	       '("s" "#+BEGIN_SRC ?\n\n#+END_SRC" "<src lang=\"?\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;; 	       '("m" "#+BEGIN_SRC emacs-lisp :tangle init.el\n\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;; 	       '("r" "#+BEGIN_SRC R :results output :session *R* :exports both\n\n#+END_SRC" "<src lang=\"R\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;; 	       '("R" "#+BEGIN_SRC R :results output graphics :file (org-babel-temp-file \"figure\" \".png\") :exports both :width 600 :height 400 :session *R* \n\n#+END_SRC" "<src lang=\"R\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;; 	       '("RR" "#+BEGIN_SRC R :results output graphics :file  (org-babel-temp-file (concat (file-name-directory (or load-file-name buffer-file-name)) \"figure-\") \".png\") :exports both :width 600 :height 400 :session *R* \n\n#+END_SRC" "<src lang=\"R\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;; 	       '("p" "#+BEGIN_SRC python :results output :exports both\n\n#+END_SRC" "<src lang=\"python\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;;   	     '("P" "#+BEGIN_SRC python :results output :session :exports both\n\n#+END_SRC" "<src lang=\"python\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;;   	     '("PP" "#+BEGIN_SRC python :results file :session :var matplot_lib_filename=(org-babel-temp-file \"figure\" \".png\") :exports both\nimport matplotlib.pyplot as plt\n\nimport numpy\nx=numpy.linspace(-15,15)\nplt.figure(figsize=(10,5))\nplt.plot(x,numpy.cos(x)/x)\nplt.tight_layout()\n\nplt.savefig(matplot_lib_filename)\nmatplot_lib_filename\n#+END_SRC" "<src lang=\"python\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;; 	     '("G" "#+BEGIN_SRC dot :results output graphics :file \"/tmp/graph.pdf\" :exports both
+;;       digraph G {
+;;       node [color=black,fillcolor=white,shape=rectangle,style=filled,fontname=\"Helvetica\"];
+;;       A[label=\"A\"]
+;;       B[label=\"B\"]
+;;       A->B
+;;    }\n#+END_SRC" "<src lang=\"dot\">\n\n</src>"))
+
+;; (add-to-list 'org-structure-template-alist
+;; 	     '("g" "#+BEGIN_SRC ditaa :results output graphics :file \"/tmp/graph.png\" :exports both
+;; +------+   +-----+   +-----+   +-----+
+;; |{io}  |   |{d}  |   |{s}  |   |cBLU |
+;; | Foo  +---+ Bar +---+ Baz +---+ Moo |
+;; |      |   |     |   |     |   |     |
+;; +------+   +-----+   +--+--+   +-----+
+;;                         |
+;;            /-----\\      |      +------+
+;;            |     |      |      | c1AB |
+;;            | Goo +------+---=--+ Shoo |
+;;            \\-----/             |      |
+;;                                +------+
+;; \n#+END_SRC" "<src lang=\"ditaa\">\n\n</src>"))
 
 #+END_SRC
 
 #+RESULTS:
+| g | #+begin_src ditaa :results output graphics :file "/tmp/graph.png" :exports both |
 
 * Magit
 #+BEGIN_SRC emacs-lisp
@@ -230,6 +330,9 @@
      (progn
        (bind-key "C-x g" 'magit-status)))
 #+END_SRC
+
+#+RESULTS:
+
 * Ivy/Counsel/Swiper
 #+BEGIN_SRC emacs-lisp
   ;; it looks like counsel is a requirement for swiper
@@ -275,4 +378,54 @@
       (ac-config-default)
       (global-auto-complete-mode t)
       ))
+#+END_SRC
+* ESS
+#+BEGIN_SRC emacs-lisp
+  (use-package ess
+     :ensure t
+     :init
+       )
+#+END_SRC
+
+
+#+begin_src dot :results output graphics :file "/tmp/graph2.png" :exports both
+      digraph G {
+      node [color=black,fillcolor=white,shape=rectangle,style=filled,
+      fontname="Helvetica"];
+      A[label="A"]
+      B[label="B"]
+      C[label="Next"]
+      A->B
+      A->C
+      B->C
+   }
+#+end_src
+
+#+RESULTS:
+[[file:/tmp/graph2.png]]
+
+
+#+begin_src ditaa :results output graphics :file "/tmp/graph.png" :exports both
++------+   +-----+   +-----+   +-----+
+|{io}  |   |{d}  |   |{s}  |   |cBLU |
+| Foo  +---+ Bar +---+ Baz +---+ Moo |
+|      |   |     |   |     |   |     |
++------+   +-----+   +--+--+   +-----+
+                        |
+           /-----\      |      +------+
+           |     |      |      | c1AB |
+           | Goo +------+---=--+ Shoo |
+           \-----/             |      |
+                               +------+
+
+#+end_src
+
+#+RESULTS:
+[[file:/tmp/graph.png]]
+
+* Which key
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+     :ensure t
+     :init)
 #+END_SRC
