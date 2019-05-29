@@ -212,6 +212,7 @@
   (setq org-src-preserve-indentation t)
   (setq org-enforce-todo-checkbox-dependencies t)
   (setq org-enforce-todo-dependencies t)
+  (setq org-log-into-drawer t)
   ;; Per post at http://kitchingroup.cheme.cmu.edu/blog/2015/03/12/Making-org-mode-Python-sessions-look-better/
   ;; This makes Python output in session mode clean up all the extra
   ;; >>> and ...
