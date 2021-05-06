@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Install Emacs 24.4
+# Install Emacs 25.3
 #
 #sudo apt-get update
 sudo apt-get build-dep emacs24
